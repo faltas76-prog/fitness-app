@@ -7,33 +7,35 @@
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
 <h1>🏋️ Fitness Planner</h1>
 
 <div class="container">
 
-  <button onclick="requestNotificationPermission()">🔔 Povolit připomínky</button>
+  <p id="progress"></p>
+  <p id="streak"></p>
 
-  <h2>📅 Týdenní plán</h2>
-  <ul id="workoutList"></ul>
+  <button onclick="startTimer(60)">⏱️ Start pauzy</button>
+  <p id="timer"></p>
 
-  <h2>🍽️ Jídelníček</h2>
-  <ul id="mealList"></ul>
+  <h2>📅 Trénink</h2>
+  <div id="workoutList"></div>
 
   <h2>⚖️ Váha</h2>
   <input type="number" id="weightInput" placeholder="Zadej váhu">
   <button onclick="saveWeight()">Uložit</button>
-  <p id="weightDisplay"></p>
+
+  <canvas id="weightChart"></canvas>
 
   <h2>🤖 AI Trenér</h2>
-  <input type="text" id="aiInput" placeholder="Zeptej se...">
+  <input type="text" id="aiInput">
   <button onclick="askAI()">Odeslat</button>
   <p id="aiResponse"></p>
-  <p id="progress"></p>
-<button onclick="startTimer(60)">⏱️ Start pauzy (60s)</button>
-<p id="timer"></p>
 
 </div>
 
