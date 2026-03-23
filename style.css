@@ -8,30 +8,35 @@ body {
   background: white;
   padding: 20px;
   margin: 20px auto;
-  width: 320px;
+  width: 350px;
   border-radius: 12px;
 }
 
-h1 {
-  color: #333;
+/* ROLETKY */
+.day {
+  border: 1px solid #ddd;
+  margin: 10px 0;
+  border-radius: 8px;
 }
 
-li {
-  text-align: left;
-  margin: 8px 0;
-}
-
-button {
-  margin-top: 10px;
-  padding: 10px;
-  border: none;
+.day-header {
   background: #4CAF50;
   color: white;
-  border-radius: 6px;
+  padding: 10px;
+  cursor: pointer;
 }
 
-input {
-  padding: 8px;
-  margin-top: 10px;
-  width: 80%;
+.day-content {
+  display: none;
+  padding: 10px;
+}
+
+/* BUTTON */
+button {
+  padding: 10px;
+  margin: 5px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
 }
