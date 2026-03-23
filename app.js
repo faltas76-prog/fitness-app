@@ -3,72 +3,44 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js");
 }
 
-// DETAILNÍ TRÉNINK
+// ====== DATA ======
 const weeklyPlan = {
-  "Pondělí": [
-    "Kliky – 4x 10",
-    "Diamantové kliky – 3x 8",
-    "Kliky s nohama nahoře – 3x 6",
-    "Plank – 3x 45s"
-  ],
-  "Úterý": [
-    "Dřepy – 4x 15",
-    "Výpady – 3x 12/12",
-    "Glute bridge – 3x 15",
-    "Wall sit – 3x 45s"
-  ],
-  "Středa": [
-    "Lehká chůze / mobilita",
-    "Strečink 10 min"
-  ],
-  "Čtvrtek": [
-    "Přítahy (hrazda/stůl) – 4x 8",
-    "Australské shyby – 3x 10",
-    "Superman – 3x 12",
-    "Zkracovačky – 3x 20"
-  ],
-  "Pátek": [
-    "Burpees – 4x 10",
-    "Kliky – 3x 12",
-    "Dřepy – 3x 15",
-    "Mountain climbers – 3x 40s"
-  ],
-  "Sobota": [
-    "Plank – 4x 45s",
-    "Side plank – 3x 30s",
-    "Leg raises – 3x 12",
-    "Hollow hold – 3x 30s"
-  ],
-  "Neděle": [
-    "Volno / regenerace"
-  ]
+  "Pondělí": ["Kliky 4x10","Diamantové kliky 3x8","Plank 3x45s"],
+  "Úterý": ["Dřepy 4x15","Výpady 3x12","Glute bridge 3x15"],
+  "Středa": ["Mobilita","Strečink"],
+  "Čtvrtek": ["Shyby 4x8","Australské shyby 3x10","Core"],
+  "Pátek": ["Burpees 4x10","Kliky 3x12","Dřepy 3x15"],
+  "Sobota": ["Core workout"],
+  "Neděle": ["Regenerace"]
 };
 
-// JÍDELNÍČEK
-const meals = [
-  "Protein + snídaně",
-  "Kuřecí + rýže",
-  "Ryba + zelenina",
-  "Tvaroh / skyr"
-];
+const days = Object.keys(weeklyPlan);
 
-// RENDER DNŮ
+// ====== WORKOUT ======
 function renderWorkout() {
   const container = document.getElementById("workoutList");
   container.innerHTML = "";
 
-  Object.keys(weeklyPlan).forEach(day => {
+  let total = 0;
+  let done = 0;
+
+  days.forEach((day, dayIndex) => {
+
+    const unlocked = dayIndex === 0 || isDayComplete(days[dayIndex - 1]);
+
     const dayDiv = document.createElement("div");
     const title = document.createElement("h3");
-    title.innerText = day;
+
+    title.innerText = unlocked ? day : "🔒 " + day;
 
     const ul = document.createElement("ul");
 
     let allChecked = true;
 
     weeklyPlan[day].forEach((exercise, i) => {
-      const li = document.createElement("li");
+      total++;
 
+      const li = document.createElement("li");
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
 
@@ -76,7 +48,10 @@ function renderWorkout() {
 
       checkbox.checked = localStorage.getItem(key) === "true";
 
+      if (checkbox.checked) done++;
       if (!checkbox.checked) allChecked = false;
+
+      checkbox.disabled = !unlocked;
 
       checkbox.onchange = () => {
         localStorage.setItem(key, checkbox.checked);
@@ -88,14 +63,13 @@ function renderWorkout() {
       ul.appendChild(li);
     });
 
-    // STATUS DNE
     const status = document.createElement("p");
 
-    if (allChecked) {
-      status.innerText = "✔ Den splněn";
+    if (allChecked && unlocked) {
+      status.innerText = "✔ Hotovo";
       status.style.color = "green";
     } else {
-      status.innerText = "⏳ Nedokončeno";
+      status.innerText = unlocked ? "⏳ Probíhá" : "🔒 Zamčeno";
       status.style.color = "orange";
     }
 
@@ -105,33 +79,44 @@ function renderWorkout() {
 
     container.appendChild(dayDiv);
   });
+
+  updateProgress(done, total);
 }
 
-// JÍDLO
-function renderMeals() {
-  const el = document.getElementById("mealList");
-  el.innerHTML = "";
-
-  meals.forEach((item, index) => {
-    const li = document.createElement("li");
-
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-
-    const key = "meal" + index;
-    checkbox.checked = localStorage.getItem(key) === "true";
-
-    checkbox.onchange = () => {
-      localStorage.setItem(key, checkbox.checked);
-    };
-
-    li.appendChild(checkbox);
-    li.appendChild(document.createTextNode(" " + item));
-    el.appendChild(li);
-  });
+function isDayComplete(day) {
+  return weeklyPlan[day].every((_, i) =>
+    localStorage.getItem(day + i) === "true"
+  );
 }
 
-// VÁHA
+// ====== PROGRESS ======
+function updateProgress(done, total) {
+  const percent = Math.round((done / total) * 100);
+  document.getElementById("progress").innerText =
+    "📊 Týdenní progres: " + percent + "%";
+}
+
+// ====== TIMER ======
+let timer;
+function startTimer(seconds = 60) {
+  let time = seconds;
+
+  clearInterval(timer);
+
+  timer = setInterval(() => {
+    document.getElementById("timer").innerText =
+      "⏱️ Pauza: " + time + "s";
+
+    time--;
+
+    if (time < 0) {
+      clearInterval(timer);
+      document.getElementById("timer").innerText = "✔ Konec pauzy";
+    }
+  }, 1000);
+}
+
+// ====== VÁHA ======
 function saveWeight() {
   const weight = document.getElementById("weightInput").value;
   localStorage.setItem("weight", weight);
@@ -141,27 +126,30 @@ function saveWeight() {
 function displayWeight() {
   const weight = localStorage.getItem("weight");
   document.getElementById("weightDisplay").innerText =
-    weight ? "Aktuální váha: " + weight + " kg" : "";
+    weight ? "⚖️ " + weight + " kg" : "";
 }
 
-// NOTIFIKACE
+// ====== NOTIFIKACE ======
 function requestNotificationPermission() {
   Notification.requestPermission();
 }
 
 function sendReminder() {
   if (Notification.permission === "granted") {
-    new Notification("🏋️ Trénink!", {
-      body: "Nezapomeň dnes splnit svůj plán 💪",
+    new Notification("🏋️ Trénink", {
+      body: "Splň dnešní plán 💪"
     });
   }
 }
 
-setTimeout(sendReminder, 5000);
-
-// AI
+// ====== AI ======
 async function askAI() {
   const input = document.getElementById("aiInput").value;
+
+  const context = `
+  Uživatelský plán:
+  ${JSON.stringify(weeklyPlan)}
+  `;
 
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -173,14 +161,9 @@ async function askAI() {
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
-          {
-            role: "system",
-            content: "Jsi fitness trenér. Odpovídej stručně."
-          },
-          {
-            role: "user",
-            content: input
-          }
+          { role: "system", content: "Jsi fitness trenér." },
+          { role: "system", content: context },
+          { role: "user", content: input }
         ]
       })
     });
@@ -190,11 +173,10 @@ async function askAI() {
       data.choices[0].message.content;
 
   } catch {
-    document.getElementById("aiResponse").innerText = "Chyba API.";
+    document.getElementById("aiResponse").innerText = "Chyba AI.";
   }
 }
 
-// INIT
+// ====== INIT ======
 renderWorkout();
-renderMeals();
 displayWeight();
