@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Fitness App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>🏋️ Fitness Planner</h1>
+
+<div class="container">
+  <h2>📅 Týdenní plán</h2>
+  <ul id="workoutList"></ul>
+
+  <h2>🍽️ Jídelníček</h2>
+  <ul id="mealList"></ul>
+
+  <h2>⚖️ Váha</h2>
+  <input type="number" id="weightInput" placeholder="Zadej váhu">
+  <button onclick="saveWeight()">Uložit</button>
+  <p id="weightDisplay"></p>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
